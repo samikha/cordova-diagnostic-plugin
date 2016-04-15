@@ -1,3 +1,5 @@
+SK: hack to fixing https://github.com/dpa99c/cordova-diagnostic-plugin/issues/52 
+
 Cordova diagnostic plugin
 =========================
 

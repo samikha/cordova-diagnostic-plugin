@@ -452,8 +452,28 @@ public class Diagnostic extends CordovaPlugin{
     }
 
     private void _requestRuntimePermissions(JSONArray permissions, int requestId) throws Exception{
-        JSONObject currentPermissionsStatuses = _getPermissionsAuthorizationStatus(jsonArrayToStringArray(permissions));
+        // SK: Fixing https://github.com/dpa99c/cordova-diagnostic-plugin/issues/52
+        // By no calling getPermissionAuthorizationStatus
         JSONArray permissionsToRequest = new JSONArray();
+        
+        String[] permissions_str = jsonArrayToStringArray(permissions);
+        for(int i=0; i<permissions_str.length; i++){
+            String permission = permissions_str[i];
+            String androidPermission = permissionsMap.get(permission);
+            Log.d(TAG, "Requesting permission for "+androidPermission);
+            permissionsToRequest.put(androidPermission);
+        }
+        if(permissionsToRequest.length() > 0){
+            Log.v(TAG, "Requesting permissions");
+            requestPermissions(this, requestId, jsonArrayToStringArray(permissionsToRequest));
+
+        }else{
+            Log.d(TAG, "No permissions to request: returning result");
+            sendRuntimeRequestResult(requestId);
+        }
+
+        /*
+        JSONObject currentPermissionsStatuses = _getPermissionsAuthorizationStatus(jsonArrayToStringArray(permissions));
         for(int i = 0; i<currentPermissionsStatuses.names().length(); i++){
             String permission = currentPermissionsStatuses.names().getString(i);
             boolean granted = currentPermissionsStatuses.getString(permission) == Diagnostic.STATUS_GRANTED;
@@ -476,6 +496,7 @@ public class Diagnostic extends CordovaPlugin{
             Log.d(TAG, "No permissions to request: returning result");
             sendRuntimeRequestResult(requestId);
         }
+        */
     }
 
     private void sendRuntimeRequestResult(int requestId){
